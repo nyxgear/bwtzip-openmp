@@ -1,0 +1,539 @@
+[bwtzip sig ULL] { Chunk: [length UL] [id UC] [... data ...] [SHA-1 hash 20 bytes of length, id, and data] } ... { Chunk }
+
+Q: How do I compile an executable?
+A: Type:
+make
+Then choose one of the commands and execute it. For example:
+make sha1test
+Note that you will need to have the zlib library to make zlib executables and pngacc, and the bzip2 library to make bzip2 executables.
+
+Q: GNDN?
+A: Stands for Goes Nowhere Does Nothing. Keep up with your Star Trek TNG trivia...
+
+Ignore everything below.
+
+/***************
+// bcell_srle.cc - Memory Cell Abstraction Interface (Bcell: Byte Mcell)
+// Switched-RLE functions
+// GPLed - Stephan T. Lavavej - http://stl.caltech.edu
+
+#include "bcell.hh"
+
+// Stephan T. Lavavej's Switched-RLE-0 algorithm (srle0)
+// An optimization for BWT=>MTF data.
+// SRLE-0 works exactly like SRLE, except that FILL runs are
+// always assumed to be of byte 0x00. Literal streams do not
+// have to end in 0x00. Indeed, literal streams should never
+// end with a 0x00 (unless it is the end of the data) and they
+// should never contain two 0x00s in a row. A single 0x00 is
+// encoded literally.
+
+// Stephan T. Lavavej's Switched-RLE-0-A algorithm (srle0a)
+// A further optimization for BWT=>MTF data.
+// SRLE-0-A is is exactly like SRLE-0, except that longer FILL runs
+// can be represented. FILL runs of length 0 to 127 inclusive
+// are represented normally. FILL runs of length 128 to 32767
+// inclusive are represented by a 2-byte header (big-endian), whose
+// highest bit is on. The rest of the algorithm is appropriately
+// modified (e.g. testing whether to switch states, a switch happens
+// after a LITERAL run of 255 or a FILL run of 32767).
+
+// Switched-RLE-0 encode our cell
+Bcell& Bcell::srle0() {
+
+    Gcell<unsigned char> output;
+    Gcell<unsigned char> buf;
+    bool literal = true;
+    int count = 0;
+    size_t n = 0;
+
+    while (n < size) {
+        // We are looking at the start of a new run
+        if (literal) { // LITERAL
+            while (n < size && count < 255) {
+                if (n == size - 1 || (*this)[n] != 0 || (*this)[n + 1] != 0) {
+                    buf.appendData((*this)[n]);
+                    n++;
+                    count++;
+                } else { // We are at the beginning of a run of zeroes
+                    break;
+                }            
+            }
+        } else { // FILL
+            // We are looking for up to 255 zeroes.
+            while (n < size && count < 255) {
+                if ((*this)[n] == 0) {
+                    n++;
+                    count++;
+                } else {
+                    break;
+                }
+            }
+        }
+        
+        // Run is over. Header byte must be count.
+        
+        output.appendData(count);
+
+        if (literal) { // LITERAL
+            output.destructiveAppend(buf);
+        }
+        
+        if (count != 255) {
+            literal = !literal;
+        }
+        
+        count = 0;
+    }
+    
+    *this = output.getMcell();
+    return *this;
+}
+
+// Switched-RLE-0 decode our cell
+Bcell& Bcell::unsrle0() {
+    Gcell<unsigned char> output;
+    bool literal = true;
+    size_t n = 0;
+
+    while (n < size) {
+        unsigned char header = (*this)[n++];        
+
+        if (literal) { // LITERAL
+            for (int i = 0; i < header; i++) {
+                output.appendData((*this)[n++]);
+            }
+        } else { // FILL
+            for (int i = 0; i < header; i++) {
+                output.appendData(0);
+            }
+        }
+        
+        if (header != 255) {
+            literal = !literal;
+        }
+    }
+
+    *this = output.getMcell();
+    return *this;
+}
+
+// Switched-RLE-0-A encode our cell
+Bcell& Bcell::srle0a() {
+
+    Gcell<unsigned char> output;
+    Gcell<unsigned char> buf;
+    bool literal = true;
+    int count = 0;
+    size_t n = 0;
+
+    while (n < size) {
+        // We are looking at the start of a new run
+        if (literal) { // LITERAL
+            while (n < size && count < 255) {
+                if (n == size - 1 || (*this)[n] != 0 || (*this)[n + 1] != 0) {
+                    buf.appendData((*this)[n]);
+                    n++;
+                    count++;
+                } else { // We are at the beginning of a run of zeroes
+                    break;
+                }            
+            }
+        } else { // FILL
+            // We are looking for up to 32767 zeroes.
+            while (n < size && count < 32767) {
+                if ((*this)[n] == 0) {
+                    n++;
+                    count++;
+                } else {
+                    break;
+                }
+            }
+        }
+        
+        // Run is over. Header byte must be count.
+                
+        if (literal) {
+            output.appendData(count);
+        } else {
+            if (count < 128) {
+                output.appendData(count); // High bit 0
+            } else {
+            	output.appendData(((count >> 8) & 0xFF) | 0x80);
+                output.appendData(count & 0xFF);
+            }
+        }
+
+        if (literal) { // LITERAL
+            output.destructiveAppend(buf);
+        }
+        
+        if ((literal && count != 255) || (!literal && count != 32767)) {
+            literal = !literal;
+        }
+        
+        count = 0;
+    }
+    
+    *this = output.getMcell();
+    return *this;
+}
+
+// Switched-RLE-0-A decode our cell
+Bcell& Bcell::unsrle0a() {
+    Gcell<unsigned char> output;
+    bool literal = true;
+    size_t n = 0;
+
+    while (n < size) {
+        unsigned int header = (*this)[n++];
+
+        if (literal) { // LITERAL
+            for (unsigned int i = 0; i < header; i++) {
+                output.appendData((*this)[n++]);
+            }
+        } else { // FILL
+        	if (header & 0x80) {
+        		header &= 0x7F;
+        		header <<= 8;
+        		header |= (*this)[n++];
+        	}
+        
+            for (unsigned int i = 0; i < header; i++) {
+                output.appendData(0);
+            }
+        }
+
+        if ((literal && header != 255) || (!literal && header != 32767)) {
+            literal = !literal;
+        }
+
+    }
+
+    *this = output.getMcell();
+    return *this;
+}
+************/
+
+/**************
+
+Bcell& Bcell::zle() {
+    Gcell<unsigned char> g;
+
+    size_t length = 0;
+
+    for (size_t i = 0; i < size; i++) {
+        const unsigned char byte = (*this)[i];
+
+        if (byte == 0x00) {
+            length++;
+        } else if (length != 0) {
+            encodeLength(g, length);
+            length = 0;
+        }
+
+        if (byte == 0xFE) {
+            g.appendData(0xFF);
+            g.appendData(0x00);
+        } else if (byte == 0xFF) {
+            g.appendData(0xFF);
+            g.appendData(0x01);
+        } else if (byte != 0x00) {
+            g.appendData(byte + 1);
+        }
+    }
+
+    if (length != 0) {
+        encodeLength(g, length);
+    }
+
+    *this = g.getMcell();
+    return *this;
+}
+
+void Bcell::encodeLength(Gcell<unsigned char>& g, size_t length) {
+    if (length <= 0) {
+        cout << "Bcell::encodeLength() given non-positive length!" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    Gcell<unsigned char> temp;
+
+    while (length != 0) {
+        temp.prependData(length & 1);
+        length >>= 1;
+    }
+
+    g.destructiveAppend(temp);
+}
+
+Bcell& Bcell::unzle() {
+    Gcell<unsigned char> g;
+
+    size_t length = 0;
+
+    for (size_t i = 0; i < size; i++) {
+        const unsigned char byte = (*this)[i];
+
+        if (byte <= 0x01) {
+            length <<= 1;
+            length += byte;
+        } else if (length != 0) {
+            while (length != 0) {
+                g.appendData(0x00);
+                length--;
+            }
+        }
+        
+        if (byte == 0xFF) {
+            const unsigned char nextbyte = (*this)[++i];
+
+            if (nextbyte == 0x00) {
+                g.appendData(0xFE);
+            } else if (nextbyte == 0x01) {
+                g.appendData(0xFF);
+            } else {
+                cout << "Problem in Bcell::unzle()!" << endl;
+                exit(EXIT_FAILURE);
+            }
+        } else if (byte > 0x01) {
+            g.appendData(byte - 1);
+        }
+    }
+
+    if (length != 0) {
+        while (length != 0) {
+            g.appendData(0x00);
+            length--;
+        }
+    }
+
+    *this = g.getMcell();
+    return *this;
+}
+
+
+// The Zero Length Encoder-1 algorithm
+
+// ZLE-1 operates the same as ZLE, except that the length of a run
+// is decremented before it is encoded. A run of 1 zero is encoded as a run of 0 zeros.
+// A run of 2 zeros is encoded as a run of 1 zero, and so forth. This is because
+// an actual run of 0 zeros can't occur. Thus, it saves a bit when expressing some
+// lengths.
+
+Bcell& Bcell::zle1() {
+    Gcell<unsigned char> g;
+
+    size_t length = 0;
+
+    for (size_t i = 0; i < size; i++) {
+        const unsigned char byte = (*this)[i];
+
+        if (byte == 0x00) {
+            length++;
+        } else if (length != 0) {
+            encodeLength1(g, length);
+            length = 0;
+        }
+
+        if (byte == 0xFE) {
+            g.appendData(0xFF);
+            g.appendData(0x00);
+        } else if (byte == 0xFF) {
+            g.appendData(0xFF);
+            g.appendData(0x01);
+        } else if (byte != 0x00) {
+            g.appendData(byte + 1);
+        }
+    }
+
+    if (length != 0) {
+        encodeLength1(g, length);
+    }
+
+    *this = g.getMcell();
+    return *this;
+}
+
+void Bcell::encodeLength1(Gcell<unsigned char>& g, size_t length) {
+    if (length <= 0) {
+        cout << "Bcell::encodeLength1() given non-positive length!" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (--length == 0) {
+        g.appendData(0x00);
+    } else {
+        Gcell<unsigned char> temp;
+
+        while (length != 0) {
+            temp.prependData(length & 1);
+            length >>= 1;
+        }
+
+        g.destructiveAppend(temp);
+    }
+}
+
+Bcell& Bcell::unzle1() {
+    Gcell<unsigned char> g;
+
+    size_t length = 0;
+    bool   run = false;
+
+    for (size_t i = 0; i < size; i++) {
+        const unsigned char byte = (*this)[i];
+
+        if (byte <= 0x01) {
+            run = true;
+            length <<= 1;
+            length += byte;
+        } else if (run) {
+            run = false;
+            length++;   // Increment length
+    
+            while (length != 0) {
+                g.appendData(0x00);
+                length--;
+            }
+        }
+        
+        if (byte == 0xFF) {
+            const unsigned char nextbyte = (*this)[++i];
+
+            if (nextbyte == 0x00) {
+                g.appendData(0xFE);
+            } else if (nextbyte == 0x01) {
+                g.appendData(0xFF);
+            } else {
+                cout << "Problem in Bcell::unzle()!" << endl;
+                exit(EXIT_FAILURE);
+            }
+        } else if (byte > 0x01) {
+            g.appendData(byte - 1);
+        }
+    }
+
+    if (run) {
+        length++;   // Increment length
+
+        while (length != 0) {
+            g.appendData(0x00);
+            length--;
+        }
+    }
+
+    *this = g.getMcell();
+    return *this;
+}
+
+
+// The Wheeler Zero Length Encoder-N algorithm
+
+// This is identical to the Wheeler ZLE algorithm, except that runs are expressed in
+// base N.
+
+Bcell& Bcell::zleWheelerN(int n) {
+    if (n < 2 || n > 255) {
+        cout << "Invalid base passed to zleWheelerN()!" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    Gcell<unsigned char> g;
+
+    size_t length = 0;
+
+    for (size_t i = 0; i < size; i++) {
+        const unsigned char byte = (*this)[i];
+
+        if (byte == 0x00) {
+            length++;
+        } else if (length != 0) {
+            encodeLengthWheelerN(g, length, n);
+            length = 0;
+        }
+
+        if (byte >= (0xFF - n + 1)) {
+            g.appendData(0xFF);
+            g.appendData(byte - (0xFF - n + 1));
+        } else if (byte != 0x00) {
+            g.appendData(byte - 1 + n);
+        }
+    }
+
+    if (length != 0) {
+        encodeLengthWheelerN(g, length, n);
+    }
+
+    *this = g.getMcell();
+    return *this;
+}
+
+void Bcell::encodeLengthWheelerN(Gcell<unsigned char>& g, size_t length, int n) {
+    if (length <= 0) {
+        cout << "Bcell::encodeLengthWheeler() given non-positive length!" << endl;
+        exit(EXIT_FAILURE);
+    }
+    if (n < 2 || n > 255) {
+        cout << "Invalid base passed to encodeLengthWheelerN()!" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    Gcell<unsigned char> temp;
+
+    while (length != 0) {
+        if (length % n == 0) {
+            temp.prependData(n - 1);
+            length -= n;
+        } else {
+            temp.prependData(length % n - 1);
+        }
+           
+        length /= n;
+    }
+
+    g.destructiveAppend(temp);
+}
+
+Bcell& Bcell::unzleWheelerN(int n) {
+    if (n < 2 || n > 255) {
+        cout << "Invalid base passed to unzleWheelerN()!" << endl;
+        exit(EXIT_FAILURE);
+    }
+    
+    Gcell<unsigned char> g;
+
+    size_t length = 0;
+
+    for (size_t i = 0; i < size; i++) {
+        const unsigned char byte = (*this)[i];
+
+        if (byte < n) {
+            length *= n;
+            length += byte + 1;
+        } else if (length != 0) {
+            while (length != 0) {
+                g.appendData(0x00);
+                length--;
+            }
+        }
+        
+        if (byte == 0xFF) {
+            g.appendData(0xFF - n + 1 + (*this)[++i]);
+        } else if (byte >= n) {
+            g.appendData(byte - n + 1);
+        }
+    }
+
+    if (length != 0) {
+        while (length != 0) {
+            g.appendData(0x00);
+            length--;
+        }
+    }
+
+    *this = g.getMcell();
+    return *this;
+}
+
+************/
