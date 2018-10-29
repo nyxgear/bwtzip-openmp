@@ -21,6 +21,6 @@ A copy of the original, unmodified, source code archive downloaded from the bwtz
 This project has been developed for the [Advanced Algorithms and Parallel Programming course]
 (A.Y. 2017/2018) at [Politecnico di Milano].
 
-[GNU GPL-2.0]: LICENSE
+[GNU GPL]: LICENSE
 [Advanced Algorithms and Parallel Programming course]: https://www4.ceda.polimi.it/manifesti/manifesti/controller/ManifestoPublic.do?EVN_DETTAGLIO_RIGA_MANIFESTO=EVENTO&c_insegn=095946&aa=2017&k_cf=225&k_corso_la=481&ac_ins=0&k_indir=T2A&lang=EN&tipoCorso=ALL_TIPO_CORSO&semestre=2&codDescr=095946&idGruppo=3589&idRiga=216915&jaf_currentWFID=main
 [Politecnico di Milano]: https://www.polimi.it
