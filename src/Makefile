@@ -5,10 +5,10 @@
 SOURCE_FILES = bcell_png.cc bcell.cc chunk.cc clock.cc ucell.cc bwtzip_zlib.cc bwtzip_common.cc bwtzip_file.cc
 
 GPP = @g++
-DELETER = @del
+DELETER = @rm
 UPX = @upx -qqq --best
 GPP_WARNING = -Wall -W
-GPP_OPTS = -O3 -mcpu=pentium4 -mmmx -msse -mfpmath=sse -maccumulate-outgoing-args \
+GPP_OPTS = -O3 -march=native -mmmx -msse -mfpmath=sse -maccumulate-outgoing-args \
 -minline-all-stringops -fomit-frame-pointer -ffast-math -funroll-loops -malign-double
 GPP_FLAGS = $(GPP_WARNING) $(GPP_OPTS) -s
 ECHO = @echo
