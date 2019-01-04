@@ -10,10 +10,11 @@ UPX = @upx -qqq --best
 GPP_WARNING = -Wall -W
 GPP_OPTS = -O3 -march=native -mmmx -msse -mfpmath=sse -maccumulate-outgoing-args \
 -minline-all-stringops -fomit-frame-pointer -ffast-math -funroll-loops -malign-double
-GPP_FLAGS = $(GPP_WARNING) $(GPP_OPTS) -s
+INC = -I../include
+GPP_FLAGS = $(GPP_WARNING) $(GPP_OPTS) $(INC) -s
 ECHO = @echo
-LBZ = -lbz # bzip2 library
-LZ = -lz   # zlib library
+LBZ = -lbz2 # bzip2 library
+LZ = -lz    # zlib library
 
 .PHONY: usage clean reallyclean all bwtzips \
 bwtzip bwtunzip display pngacc bwtsarray bwtcompare arithverify \
