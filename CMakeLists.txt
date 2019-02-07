@@ -22,6 +22,9 @@ set(CMAKE_CXX_EXTENSIONS ON)
 # OpenMP dependency
 find_package(OpenMP)
 
+find_package(Boost 1.65.0 REQUIRED
+             COMPONENTS system filesystem REQUIRED)
+
 # bwtzip executable
 set(BWTZIP_SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/src/bwtzip_common.cc
@@ -75,7 +78,8 @@ target_include_directories(Catch INTERFACE ${CATCH_INCLUDE_DIR})
 set(TEST_SOURCES
         ${BWTZIP_SRC}
         ${CMAKE_CURRENT_SOURCE_DIR}/test/main.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/human_genome_compression_test.cpp
+#        ${CMAKE_CURRENT_SOURCE_DIR}/test/human_genome_compression_test.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/large_english_text_compression_test.cpp
         )
 
 add_executable(tests ${TEST_SOURCES})
@@ -91,6 +95,8 @@ target_include_directories(tests
 target_link_libraries(tests
         PUBLIC
         Catch
+        ${Boost_LIBRARIES}
         )
+
 
 add_test(NAME tests COMMAND tests)
