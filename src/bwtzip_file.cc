@@ -8,7 +8,7 @@ using namespace std;
 using namespace bwtzip;
 using namespace bwtzip::file;
 
-vector<unsigned char> bwtzip::readFile(const char * filename) throw (string) {
+vector<unsigned char> bwtzip::readFile(const char * filename) {
     FILE * fp = fileOpenRB(filename);
     vector<unsigned char> ret(fileSize(fp));
 
@@ -21,7 +21,7 @@ vector<unsigned char> bwtzip::readFile(const char * filename) throw (string) {
 }
 
 const vector<unsigned char>& bwtzip::writeFile(
-    const vector<unsigned char>& v, const char * filename) throw (string) {
+    const vector<unsigned char>& v, const char * filename) {
 
     FILE * fp = fileOpenWB(filename);
 
@@ -33,9 +33,9 @@ const vector<unsigned char>& bwtzip::writeFile(
     }
 }
 
-bwtzip::InputFile::InputFile(const char * filename) throw (string) : fp(fileOpenRB(filename)) { }
+bwtzip::InputFile::InputFile(const char * filename) : fp(fileOpenRB(filename)) { }
 
-vector<unsigned char> bwtzip::InputFile::extractAtMost(unsigned long maxsize) throw () {
+vector<unsigned char> bwtzip::InputFile::extractAtMost(unsigned long maxsize) {
     vector<unsigned char> ret;
     ret.reserve(maxsize);
 
@@ -51,7 +51,7 @@ vector<unsigned char> bwtzip::InputFile::extractAtMost(unsigned long maxsize) th
     return ret;
 }
 
-bwtzip::InputFile::~InputFile() throw () {
+bwtzip::InputFile::~InputFile() {
     try {
         fileClose(fp);
     } catch (string e) {
@@ -60,15 +60,15 @@ bwtzip::InputFile::~InputFile() throw () {
     }
 }
 
-bwtzip::OutputFile::OutputFile(const char * filename) throw (string) : fp(fileOpenWB(filename)) { }
+bwtzip::OutputFile::OutputFile(const char * filename) : fp(fileOpenWB(filename)) { }
 
-void bwtzip::OutputFile::append(const vector<unsigned char>& v) throw () {
+void bwtzip::OutputFile::append(const vector<unsigned char>& v) {
     for (size_t i = 0; i < v.size(); i++) {
         putc(v[i], fp);
     }
 }
 
-bwtzip::OutputFile::~OutputFile() throw () {
+bwtzip::OutputFile::~OutputFile() {
     try {
         fileClose(fp);
     } catch (string e) {
@@ -85,13 +85,13 @@ long bwtzip::file::fileSize(FILE * fp) {
     return size;
 }
 
-void bwtzip::file::fileClose(FILE * fp) throw (string) {
+void bwtzip::file::fileClose(FILE * fp) {
     if (fclose(fp) == EOF) {
         throw string("An error occurred while closing a file.");
     }
 }
 
-FILE * bwtzip::file::fileOpenRB(const char * filename) throw (string) {
+FILE * bwtzip::file::fileOpenRB(const char * filename) {
     FILE * fp = fopen(filename, "rb");
 
     if (fp != NULL) {
@@ -102,7 +102,7 @@ FILE * bwtzip::file::fileOpenRB(const char * filename) throw (string) {
     }
 }
 
-FILE * bwtzip::file::fileOpenWB(const char * filename) throw (string) {
+FILE * bwtzip::file::fileOpenWB(const char * filename) {
     FILE * fp = fopen(filename, "rb");
 
     if (fp != NULL) {
