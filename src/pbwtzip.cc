@@ -1,5 +1,20 @@
 #include "pbwtzip.hh"
 
+namespace pbwtzip {
+    // initialize buffers with two sides
+    bs_t bufferR_1[2];
+    bs_t buffer1_2[2];
+    bs_t buffer2_3[2];
+    bs_t buffer3_W[2];
+
+    bool read_completed = false;
+    bool ongoing_file_processing = true;
+
+    double stats_stages_time[5];
+    int stats_lasted_longer_count[5];
+    double stats_time_averages[5];
+}
+
 /**
  * Read file
  * @param bs                buffer side

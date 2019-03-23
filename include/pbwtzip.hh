@@ -35,29 +35,33 @@ namespace pbwtzip {
     using namespace std;
     using namespace bwtzip;
 
+    // chunk type
     typedef struct cnk_t {
         int id;
         vector<unsigned char> v;
     } cnk_t;
 
+    // buffer side type
+    typedef  cnk_t * bs_t[BUFFER_SIZE];
+
     // chunk buffer variables
-    static cnk_t *bufferR_1[2][BUFFER_SIZE];
-    static cnk_t *buffer1_2[2][BUFFER_SIZE];
-    static cnk_t *buffer2_3[2][BUFFER_SIZE];
-    static cnk_t *buffer3_W[2][BUFFER_SIZE];
+    extern bs_t bufferR_1[];
+    extern bs_t buffer1_2[];
+    extern bs_t buffer2_3[];
+    extern bs_t buffer3_W[];
 
     // turned true from read_file function once file read completed
     // (used to signal to write function that read is completed)
-    static bool read_completed = false;
+    extern bool read_completed;
     // turned false from write_file function when, read completed and last
     // compressed chunk written to file
     // (used to signal file compression is complete)
-    static bool ongoing_file_processing = true;
+    extern bool ongoing_file_processing;
 
     // stats
-    static double stats_stages_time[5];
-    static int stats_lasted_longer_count[5];
-    static double stats_time_averages[5];
+    extern double stats_stages_time[];
+    extern int stats_lasted_longer_count[];
+    extern double stats_time_averages[];
 
 
     /**
@@ -156,8 +160,6 @@ namespace pbwtzip {
             return v;
         }
         */
-        cout << "HERE3" <<endl;
-
         if (argc < 3 || argc > 4) {
             cout << "USAGE: " << executableName << " infile outfile" << endl;
             cout << "USAGE: " << executableName << " chunksize infile outfile" << endl;
@@ -170,8 +172,6 @@ namespace pbwtzip {
             cout << "Chunk size too small!" << endl;
             exit(EXIT_FAILURE);
         }
-        cout << argv[argc - 2] <<endl;
-        cout << argv[argc - 1] <<endl;
 
         InputFile infile(argv[argc - 2]);
         OutputFile outfile(argv[argc - 1]);
