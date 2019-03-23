@@ -4,6 +4,11 @@
 #ifndef BWTZIP_COMMON_HH
 #define BWTZIP_COMMON_HH
 
+#define LOG_SUFFIX_TREE 0
+#define LOG_DFS 0
+#define LOG_BWTZIP 1
+#define LOG_BWTUNZIP 0
+
 #include <vector>
 
 namespace bwtzip {

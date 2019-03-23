@@ -17,10 +17,10 @@ using namespace bwtzip;
 
 vector<unsigned char>& bwtzip::bwtDecompress(vector<unsigned char>& v) {
     clockStart();
-    unarith(v);      cout << "UnArith:       " << clockReport() << endl;
-    unzleWheeler(v); cout << "UnWheeler ZLE: " << clockReport() << endl;
-    unmtf2(v);       cout << "UnMTF-2:       " << clockReport() << endl;
-    unbwt(v);        cout << "UnBWT:         " << clockReport() << endl;
+    unarith(v);      if (LOG_BWTUNZIP) cout << "UnArith:       " << clockReport() << endl;
+    unzleWheeler(v); if (LOG_BWTUNZIP) cout << "UnWheeler ZLE: " << clockReport() << endl;
+    unmtf2(v);       if (LOG_BWTUNZIP) cout << "UnMTF-2:       " << clockReport() << endl;
+    unbwt(v);        if (LOG_BWTUNZIP) cout << "UnBWT:         " << clockReport() << endl;
 
     return v;
 }

@@ -11,6 +11,8 @@
 #include "bwtzip_file.hh"
 #include "bwtzip_common.hh"
 #include "clock.hh"
+#include "wclock.hh"
+#include "wclock.hh"
 #include <iostream>
 #include <cstdio>
 #include <string>
@@ -54,7 +56,9 @@ namespace bwtzip {
         InputFile infile(argv[argc - 2]);
         OutputFile outfile(argv[argc - 1]);
         outfile.append(encodeULL(BWTZIP_SIG));
-    
+
+        auto clk = new wClock();
+
         while (true) {
             vector<unsigned char> v = infile.extractAtMost(max_chunk_size);
             if (v.empty()) {
@@ -76,6 +80,9 @@ namespace bwtzip {
             outfile.append(id);
             outfile.append(v);
         }
+        if (LOG_BWTZIP) printf("[BWTZIP] Execution time: %f\n\n", clk->report());
+
+        delete clk;
     }
 
     std::vector<size_t> convertPosToLengths(const std::vector<size_t>& pos);

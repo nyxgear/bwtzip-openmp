@@ -181,6 +181,11 @@ namespace pbwtzip {
             cout << "[PBWTZIP] Chunk Size:    " << max_chunk_size << endl;
         }
 
+        if (LOG_STATISTICS_CSV) {
+            string log_name = argv[argc - 1];
+            log_name += "_statistics_log.csv";
+            Log::open_csv_log(log_name);
+        }
 
         auto clk = new wClock();
 
@@ -232,9 +237,11 @@ namespace pbwtzip {
             bs = !bs;
             iter++;
         }
-        if (LOG_PBWTZIP) printf("[PBWTZIP] Execution time: %f\n\n", clk->report());
-
         Log::pipeline::stats_print_summary(--iter, stats_lasted_longer_count, stats_time_averages);
+
+        Log::pipeline::print_total_exec_time(clk->report());
+
+        if (LOG_STATISTICS_CSV) Log::close_csv_log();
         delete clk;
     }
 

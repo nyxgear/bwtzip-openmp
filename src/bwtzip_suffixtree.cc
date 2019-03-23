@@ -204,7 +204,7 @@ void bwtzip::ukkonen::SuffixNode::dfs(vector<size_t>& v, SuffixNode * root) {
 // children, since the leaf nodes don't exist.
 
 void bwtzip::ukkonen::SuffixNode::displayInstances() {
-    cout << "Number of SuffixNodes instantiated: " << count << endl;
+    if (LOG_SUFFIX_TREE) cout << "Number of SuffixNodes instantiated: " << count << endl;
 }
 
 // ********************* SUFFIXTREE
@@ -234,7 +234,7 @@ bwtzip::ukkonen::SuffixTree::SuffixTree(const vector<unsigned char>& v)
         temp = update(temp, i);
         temp = canonize(temp.first, temp.second, i);
     }
-  ukkonentimer.print();
+    if (LOG_SUFFIX_TREE) ukkonentimer.print();
 }
 
 vector<size_t> bwtzip::ukkonen::SuffixTree::lengthsOfSortedSuffixes() {
@@ -242,7 +242,7 @@ vector<size_t> bwtzip::ukkonen::SuffixTree::lengthsOfSortedSuffixes() {
     ret.reserve(sentineledlength);
   Clock dfstimer("DFS Timer");
     SuffixNode::dfs(ret, root);
-  dfstimer.print();
+    if (LOG_DFS) dfstimer.print();
     return ret;
 }
 

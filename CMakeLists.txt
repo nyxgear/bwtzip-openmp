@@ -48,7 +48,8 @@ set(COMMON_SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/src/bwtzip_zle.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/src/bwtzip_arith.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/src/bwtzip_file.cc
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/clock.cc)
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/clock.cc
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/wclock.cc)
 
 # bwtzip executable
 set(BWTZIP_SRC

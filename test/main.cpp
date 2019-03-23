@@ -26,7 +26,7 @@ TEST_CASE("Compressed file matches original file") {
     int argc_zip = sizeof(argv_zip) / sizeof(char *) - 1;
 
     argv_zip[0] = (char *) "pbwtzip";
-    argv_zip[1] = (char *) "800480";
+    argv_zip[1] = (char *) "409600";
     // argv[1] = (char *) "5242880"; // MAX_CHUNK_SIZE
     argv_zip[2] = (char *) original_file_path;
     argv_zip[3] = (char *) compressed_file_path;
