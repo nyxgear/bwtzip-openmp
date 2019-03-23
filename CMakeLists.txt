@@ -77,11 +77,10 @@ add_library(Catch INTERFACE)
 target_include_directories(Catch INTERFACE ${CATCH_INCLUDE_DIR})
 
 set(TEST_SOURCES
-        ${BWTZIP_SRC}
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/main.cpp
-        #        ${CMAKE_CURRENT_SOURCE_DIR}/test/human_genome_compression_test.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/large_english_text_compression_test.cpp
-        )
+        ${COMMON_SRC}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/bwtzip.cc
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/bwtunzip.cc
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/main.cpp)
 
 add_executable(tests ${TEST_SOURCES})
 
