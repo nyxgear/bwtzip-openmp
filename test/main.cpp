@@ -3,7 +3,7 @@
 #include "catch.hpp"
 
 #include "stdio.h"
-#include "bwtzip.hh"
+#include "pbwtzip.hh"
 #include "bwtzip_suffixtree.hh"
 #include "bwtunzip.hh"
 
@@ -32,7 +32,7 @@ TEST_CASE("Compressed file matches original file") {
     argv_zip[3] = (char *) compressed_file_path;
 
     std::cout << "[TEST] Compressing " << original_file_path << " to " << compressed_file_path << std::endl;
-    bwtzipMain(argc_zip, argv_zip, "bwtzip", "Ukkonen Suffix Tree", bwtStree);
+    pbwtzip::pbwtzipMain(argc_zip, argv_zip, "bwtzip", "Ukkonen Suffix Tree", bwtStree);
 
 
     /**

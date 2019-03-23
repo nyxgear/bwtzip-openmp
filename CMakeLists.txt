@@ -15,7 +15,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 if (MSVC)
     add_compile_options(/W4)
 else ()
-    add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-variable)
+    add_compile_options(-Werror -Wall -Wextra -Wpedantic -Wno-unused-variable)
 endif ()
 
 # OpenMP dependency
@@ -67,6 +67,21 @@ add_executable(bwtunzip
         ${BWTUNZIP_SRC}
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main_bwtunzip.cc)
 
+# --------------------------------------------------------------------------- #
+#                      pbwtzip - OpenMP parallel version
+# --------------------------------------------------------------------------- #
+# pbwtzip executable
+set(PBWTZIP_SRC
+        ${COMMON_SRC}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/wclock.cc
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/log.cc
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pbwtzip.cc)
+add_executable(pbwtzip
+        ${PBWTZIP_SRC}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/main_pbwtzip.cc)
+#target_link_libraries(pbwtzip
+#        PUBLIC
+#        Boost::filesystem)
 
 # --------------------------------------------------------------------------- #
 #                               Tests
@@ -78,7 +93,9 @@ target_include_directories(Catch INTERFACE ${CATCH_INCLUDE_DIR})
 
 set(TEST_SOURCES
         ${COMMON_SRC}
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/bwtzip.cc
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/wclock.cc
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/log.cc
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pbwtzip.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/src/bwtunzip.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/test/main.cpp)
 
