@@ -62,7 +62,7 @@ bwtzip::PackedBits::PackedBits()
     : waiting(0x00), numwaiting(0) { }
 
 void bwtzip::PackedBits::push_back(bool bit) {
-    waiting |= (unsigned char) bit << 7 - numwaiting;
+    waiting |= (unsigned char) bit << (7 - numwaiting);
     ++numwaiting;
     if (numwaiting == 8) {
         data.push_back(waiting);
