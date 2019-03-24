@@ -79,6 +79,14 @@ set(PBWTZIP_SRC
 add_executable(pbwtzip
         ${PBWTZIP_SRC}
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main_pbwtzip.cc)
+
+# pbwtzip2 executable
+set(PBWTZIP2_SRC
+        ${COMMON_SRC}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pbwtzip2.cc)
+add_executable(pbwtzip2
+        ${PBWTZIP2_SRC}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/main_pbwtzip2.cc)
 #target_link_libraries(pbwtzip
 #        PUBLIC
 #        Boost::filesystem)
