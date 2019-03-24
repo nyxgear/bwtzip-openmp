@@ -39,7 +39,7 @@ namespace Log {
     }
     namespace csv {
         extern std::stringstream csv_line;
-        void start_new_line(string filename, string thread_config, const unsigned long chunk_size);
+        void start_new_line(string filename, char*thread_config, unsigned long chunk_size);
         void print_statistics_line();
     }
 }

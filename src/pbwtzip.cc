@@ -1,11 +1,20 @@
 #include "pbwtzip.hh"
 
 namespace pbwtzip {
+    // num of assigned threads to stages, set them to default
+    unsigned int num_thread_stage_1;
+    unsigned int num_thread_stage_2;
+    unsigned int num_thread_stage_3;
+
+    // will be set to the max between num_thread_stage_1, num_thread_stage_2, num_thread_stage_3
+    unsigned int buffer_size;
+
     // initialize buffers with two sides
-    bs_t bufferR_1[2];
-    bs_t buffer1_2[2];
-    bs_t buffer2_3[2];
-    bs_t buffer3_W[2];
+    cnk_t ***bufferR_1 = new cnk_t **[2];
+    cnk_t ***buffer1_2 = new cnk_t **[2];
+    cnk_t ***buffer2_3 = new cnk_t **[2];
+    cnk_t ***buffer3_W = new cnk_t **[2];
+
 
     bool read_completed = false;
     bool ongoing_file_processing = true;
@@ -25,7 +34,7 @@ void pbwtzip::read_file(int bs, bwtzip::InputFile &infile, const unsigned long m
     Log::stage::started("read_file", bs);
     auto clk = new wClock();
 
-    for (int i = 0; i < BUFFER_SIZE; i++) {
+    for (unsigned int i = 0; i < buffer_size; i++) {
         cnk_t *c;
         auto v = infile.extractAtMost(max_chunk_size);
 
@@ -64,8 +73,8 @@ void pbwtzip::stage_2(int bs) {
     Log::stage::started("stage_2", bs);
     auto clk = new wClock();
 
-#pragma omp parallel for num_threads(NUM_THREAD_STAGE_2) firstprivate(bs)
-    for (auto i = 0; i < BUFFER_SIZE; i++) {
+#pragma omp parallel for num_threads(num_thread_stage_2) firstprivate(bs)
+    for (unsigned int i = 0; i < buffer_size; i++) {
         cnk_t *c;
 
         c = buffer1_2[bs][i];
@@ -94,8 +103,8 @@ void pbwtzip::stage_3(int bs) {
     Log::stage::started("stage_3", bs);
     auto clk = new wClock();
 
-#pragma omp parallel for num_threads(NUM_THREAD_STAGE_3) firstprivate(bs)
-    for (auto i = 0; i < BUFFER_SIZE; i++) {
+#pragma omp parallel for num_threads(num_thread_stage_3) firstprivate(bs)
+    for (unsigned int i = 0; i < buffer_size; i++) {
         cnk_t *c;
 
         c = buffer2_3[bs][i];
@@ -123,7 +132,7 @@ void pbwtzip::write_file(int bs, bwtzip::OutputFile &outfile) {
     Log::stage::started("write_file", bs);
     auto clk = new wClock();
 
-    for (auto i = 0; i < BUFFER_SIZE; i++) {
+    for (unsigned int i = 0; i < buffer_size; i++) {
         cnk_t *c;
 
         c = buffer3_W[bs][i];

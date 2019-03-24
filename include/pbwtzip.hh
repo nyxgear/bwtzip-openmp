@@ -1,6 +1,13 @@
 #ifndef PBWTZIP_HH
 #define PBWTZIP_HH
 
+#include <iostream>
+#include <cstdio>
+#include <cstring>
+#include <string>
+#include <vector>
+#include <omp.h>
+
 #include "bwtzip_common.hh"
 #include "bwtzip_mtf.hh"
 #include "bwtzip_zle.hh"
@@ -9,26 +16,10 @@
 #include "clock.hh"
 #include "log.hh"
 #include "wclock.hh"
-#include <iostream>
-#include <cstdio>
-#include <string>
-#include <vector>
-#include <cstdlib>
-
-#include <omp.h>
-#include <math.h>
-#include <queue>
-#include <tuple>
 
 #define NUM_THREAD_STAGE_1 4
 #define NUM_THREAD_STAGE_2 1
 #define NUM_THREAD_STAGE_3 1
-
-#define MAX(a, b) a > b ? a : b
-#define MAX3(a, b, c) (MAX(MAX((a), (b)), (c)))
-
-// define the buffer size as the max of num thread assigned
-#define BUFFER_SIZE MAX3(NUM_THREAD_STAGE_1, NUM_THREAD_STAGE_2, NUM_THREAD_STAGE_3)
 
 // parallel bwtzip
 namespace pbwtzip {
@@ -41,14 +32,18 @@ namespace pbwtzip {
         vector<unsigned char> v;
     } cnk_t;
 
-    // buffer side type
-    typedef  cnk_t * bs_t[BUFFER_SIZE];
+    // num of assigned threads to stages
+    extern unsigned int num_thread_stage_1;
+    extern unsigned int num_thread_stage_2;
+    extern unsigned int num_thread_stage_3;
 
-    // chunk buffer variables
-    extern bs_t bufferR_1[];
-    extern bs_t buffer1_2[];
-    extern bs_t buffer2_3[];
-    extern bs_t buffer3_W[];
+    extern unsigned int buffer_size;
+
+    // buffers
+    extern cnk_t ***bufferR_1;
+    extern cnk_t ***buffer1_2;
+    extern cnk_t ***buffer2_3;
+    extern cnk_t ***buffer3_W;
 
     // turned true from read_file function once file read completed
     // (used to signal to write function that read is completed)
@@ -83,8 +78,8 @@ namespace pbwtzip {
         Log::stage::started("stage_1", bs);
         auto clk = new wClock();
 
-#pragma omp parallel for num_threads(NUM_THREAD_STAGE_1) firstprivate(bs)
-        for (auto i = 0; i < BUFFER_SIZE; i++) {
+#pragma omp parallel for num_threads(num_thread_stage_1) firstprivate(bs)
+        for (unsigned int i = 0; i < buffer_size; i++) {
             cnk_t *c;
 
             c = bufferR_1[bs][i];
@@ -160,45 +155,77 @@ namespace pbwtzip {
             return v;
         }
         */
-        if (argc < 3 || argc > 4) {
+        if (argc < 3 || argc > 5) {
             cout << "USAGE: " << executableName << " infile outfile" << endl;
             cout << "USAGE: " << executableName << " chunksize infile outfile" << endl;
+            cout << "USAGE: " << executableName << " threads_conf chunksize infile outfile" << endl;
+            cout << "\n\tthreads_conf eg: 5.1.1" << endl;
             exit(EXIT_SUCCESS);
         }
 
-        const string thread_conf = "4.1.1";
-        const unsigned long max_chunk_size = (argc == 3) ? MAX_CHUNK_SIZE : atol(argv[1]);
+        /**
+         * set threads configuration
+         */
+        char threads_conf[20];
+        if (argc == 5) {
+            strcpy(threads_conf, argv[argc - 4]);
+            sscanf(threads_conf, "%u.%u.%u", &num_thread_stage_1, &num_thread_stage_2, &num_thread_stage_3);
+        } else {
+            num_thread_stage_1 = NUM_THREAD_STAGE_1;
+            num_thread_stage_2 = NUM_THREAD_STAGE_2;
+            num_thread_stage_3 = NUM_THREAD_STAGE_3;
 
+            sprintf(threads_conf, "%u.%u.%u", num_thread_stage_1, num_thread_stage_2, num_thread_stage_3);
+        }
+        // update buffer size to max num_threads
+        buffer_size = max(num_thread_stage_1, num_thread_stage_2);
+        buffer_size = max(buffer_size, num_thread_stage_3);
+
+
+        /**
+         * set chunk size
+         */
+        const unsigned long max_chunk_size = (argc > 3) ? atol(argv[argc - 3]) : MAX_CHUNK_SIZE;
         if (max_chunk_size < MIN_LENGTH_TO_COMPRESS) {
             cout << "Chunk size too small!" << endl;
             exit(EXIT_FAILURE);
         }
 
+        // remove file output if present
+        remove(argv[argc - 1]);
+
         InputFile infile(argv[argc - 2]);
         OutputFile outfile(argv[argc - 1]);
         outfile.append(encodeULL(BWTZIP_SIG));
-        if (LOG_PBWTZIP) {
-            cout << "[PBWTZIP] BWT Algorithm: " << algorithmName << endl;
-            cout << "[PBWTZIP] Chunk Size:    " << max_chunk_size << endl;
-        }
+        // initialize buffers and
+        // set all cnk_t pointers to null in order to ensure initialization
+        for (unsigned int j = 0; j < 2; ++j) {
+            bufferR_1[j] = new cnk_t *[buffer_size];
+            buffer1_2[j] = new cnk_t *[buffer_size];
+            buffer2_3[j] = new cnk_t *[buffer_size];
+            buffer3_W[j] = new cnk_t *[buffer_size];
 
-        if (LOG_STATISTICS_CSV) {
-            string log_name = argv[argc - 1];
-            log_name += "_stats_log.csv";
-            Log::csv::start_new_line(log_name, thread_conf, max_chunk_size);
-        }
-
-        auto clk = new wClock();
-
-        // set all cunk pointer to null in order to ensure initialization
-        for (auto j = 0; j < 2; j++) {
-            for (auto i = 0; i < BUFFER_SIZE; i++) {
+            for (unsigned int i = 0; i < buffer_size; i++) {
                 bufferR_1[j][i] = nullptr;
                 buffer1_2[j][i] = nullptr;
                 buffer2_3[j][i] = nullptr;
                 buffer3_W[j][i] = nullptr;
             }
         }
+
+        if (LOG_PBWTZIP) {
+            cout << "[PBWTZIP] BWT Algorithm:         " << algorithmName << endl;
+            cout << "[PBWTZIP] Threads configuration: " << threads_conf << endl;
+            cout << "[PBWTZIP] Chunk Size:            " << max_chunk_size << endl;
+        }
+
+        if (LOG_STATISTICS_CSV) {
+            string filename = argv[argc - 1];
+            Log::csv::start_new_line(filename, threads_conf, max_chunk_size);
+        }
+
+
+        auto clk = new wClock();
 
         // buffer side
         int bs = 0;
@@ -244,8 +271,20 @@ namespace pbwtzip {
 
         if (LOG_STATISTICS_CSV) Log::csv::print_statistics_line();
         delete clk;
-    }
 
+
+        // free buffers
+        for (unsigned int j = 0; j < 2; ++j) {
+            delete[] bufferR_1[j];
+            delete[] buffer1_2[j];
+            delete[] buffer2_3[j];
+            delete[] buffer3_W[j];
+        }
+        delete[] bufferR_1;
+        delete[] buffer1_2;
+        delete[] buffer2_3;
+        delete[] buffer3_W;
+    }
 }
 
 #endif // End of: #ifndef PBWTZIP_HH

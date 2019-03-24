@@ -13,13 +13,13 @@ namespace Log{
     }
 }
 
-void Log::csv::start_new_line(string filename, string thread_config, const unsigned long chunk_size) {
-    csv::csv_line.clear();
+void Log::csv::start_new_line(string filename, char*thread_config, unsigned long chunk_size) {
+//    csv::csv_line.clear();
     csv::csv_line << filename << ", " << thread_config << ", " << chunk_size << ", ";
 }
 
 void Log::csv::print_statistics_line() {
-    std::cout << csv::csv_line.str() << endl;
+    std::cout << csv::csv_line.str() << std::endl;
 }
 
 void Log::pipeline::started(int iter, int bs) {

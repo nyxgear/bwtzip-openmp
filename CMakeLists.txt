@@ -15,7 +15,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 if (MSVC)
     add_compile_options(/W4)
 else ()
-    add_compile_options(-Werror -Wall -Wextra -Wpedantic -Wno-unused-variable)
+    add_compile_options(-Werror -Wall -Wextra -Wpedantic)
 endif ()
 
 # OpenMP dependency
