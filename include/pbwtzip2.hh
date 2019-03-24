@@ -72,7 +72,7 @@ namespace pbwtzip2 {
      */
     template<typename T>
     void stage_1(int bs, T bwtfxn) {
-        Log::pbwtzip::stage::started("stage_1", bs);
+        Log::pbwtzip2::stage::started("stage_1", bs);
         auto clk = new wClock();
 
 #pragma omp parallel for num_threads(num_thread_stage_1) firstprivate(bs)
@@ -80,7 +80,7 @@ namespace pbwtzip2 {
             cnk_t *c;
 
             c = bufferR_1[bs][i];
-            Log::pbwtzip::stage::chunk_read("stage_1", "bufferR_1", bs, i, c);
+            Log::pbwtzip2::stage::chunk_read("stage_1", "bufferR_1", bs, i, c);
 
             if (c != nullptr && c->id == 1) {
                 bwtfxn(c->v);
@@ -88,11 +88,11 @@ namespace pbwtzip2 {
 
 
             buffer1_2[!bs][i] = c;
-            Log::pbwtzip::stage::chunk_written("stage_1", "buffer1_2", bs, i, c);
+            Log::pbwtzip2::stage::chunk_written("stage_1", "buffer1_2", bs, i, c);
         }
 
         stats_stages_time[1] = clk->report();
-        Log::pbwtzip::stage::ended("read_file", stats_stages_time[1]);
+        Log::pbwtzip2::stage::ended("read_file", stats_stages_time[1]);
         delete clk;
     }
 
@@ -208,7 +208,7 @@ namespace pbwtzip2 {
 
         if (LOG_STATISTICS_CSV) {
             string filename = argv[argc - 1];
-            Log::pbwtzip::csv::start_new_line(filename, threads_conf, max_chunk_size);
+            Log::pbwtzip2::csv::start_new_line(filename, threads_conf, max_chunk_size);
         }
 
 
@@ -224,7 +224,7 @@ namespace pbwtzip2 {
 
         int iter = 0;
         while (ongoing_file_processing) {
-            Log::pbwtzip::started(iter, bs);
+            Log::pbwtzip2::started(iter, bs);
 
 #pragma omp parallel sections firstprivate(bs)
             {
@@ -242,18 +242,18 @@ namespace pbwtzip2 {
             }
             if (LOG_STATISTICS || LOG_STATISTICS_CSV) stats_update(iter);
 
-            Log::pbwtzip::ended(iter, bs);
+            Log::pbwtzip2::ended(iter, bs);
 
             // Toggle buffer side.
             // Side used for reading become the one for writing and vice versa on next iteration.
             bs = !bs;
             iter++;
         }
-        Log::pbwtzip::stats_print_summary(--iter, stats_lasted_longer_count, stats_time_averages);
+        Log::pbwtzip2::stats_print_summary(--iter, stats_lasted_longer_count, stats_time_averages);
 
-        Log::pbwtzip::print_total_exec_time(clk->report());
+        Log::pbwtzip2::print_total_exec_time(clk->report());
 
-        if (LOG_STATISTICS_CSV) Log::pbwtzip::csv::print_statistics_line();
+        if (LOG_STATISTICS_CSV) Log::pbwtzip2::csv::print_statistics_line();
         delete clk;
 
 
