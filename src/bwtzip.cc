@@ -34,7 +34,7 @@ void bwtzip::stats_update(int iter) {
         // iter > 0 hence 2nd or next iteration.
         // incremental mean  U_n = [X_n + (n - 1)*U_n-1]/n
         // iter is actually n - 1 since zero-initialized
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 4; i++)
             stats_time_averages[i] = (stats_functions_time[i] + (iter * stats_time_averages[i])) / (iter + 1);
     }
 }

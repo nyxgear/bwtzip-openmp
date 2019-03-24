@@ -58,6 +58,8 @@ void Log::pbwtzip::stats_print_summary(int iter, int lasted_longer_count[], doub
     }
 
     if (LOG_STATISTICS_CSV) {
+        csv::csv_line << iter + 1 << ", ";
+
         for (int i = 0; i < 5; i++)
             csv::csv_line << lasted_longer_count[i] << ", ";
         for (int i = 0; i < 5; i++)
@@ -123,6 +125,8 @@ void Log::bwtzip::stats_print_summary(int iter, int *lasted_longer_count, double
     }
 
     if (LOG_STATISTICS_CSV) {
+        csv::csv_line << iter + 1 << ", ";
+
         for (int i = 0; i < 4; i++)
             csv::csv_line << lasted_longer_count[i] << ", ";
         for (int i = 0; i < 4; i++)

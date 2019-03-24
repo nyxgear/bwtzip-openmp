@@ -16,9 +16,9 @@
 // when enable, a csv file line will be created and output on the print_exec_statics_csv_line() invocation.
 // first line of CSV file:
 // BWTZIP
-// Filename, Chunk_size, Times_lasted_longer_function1, Times_lasted_longer_function2, Times_lasted_longer_function3, Times_lasted_longer_function4, Avg_exec_time_function1, Avg_exec_time_function2, Avg_exec_time_function3, Avg_exec_time_function4, Total_compression_time
+// Filename, Chunk_size, Iterations, Times_lasted_longer_function1, Times_lasted_longer_function2, Times_lasted_longer_function3, Times_lasted_longer_function4, Avg_exec_time_function1, Avg_exec_time_function2, Avg_exec_time_function3, Avg_exec_time_function4, Total_compression_time
 // PBWTZIP
-// Filename, Threads_configuration, Chunk_size, Times_lasted_longer_read, Times_lasted_longer_stage1, Times_lasted_longer_stage2, Times_lasted_longer_stage3, Times_lasted_longer_write, Avg_exec_time_read, Avg_exec_time_stage1, Avg_exec_time_stage2, Avg_exec_time_stage3, Avg_exec_time_write, Total_compression_time
+// Filename, Threads_configuration, Chunk_size, Iterations, Times_lasted_longer_read, Times_lasted_longer_stage1, Times_lasted_longer_stage2, Times_lasted_longer_stage3, Times_lasted_longer_write, Avg_exec_time_read, Avg_exec_time_stage1, Avg_exec_time_stage2, Avg_exec_time_stage3, Avg_exec_time_write, Total_compression_time
 #define LOG_STATISTICS_CSV 1
 
 #include <cstdio>
