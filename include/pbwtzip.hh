@@ -166,6 +166,7 @@ namespace pbwtzip {
             exit(EXIT_SUCCESS);
         }
 
+        const string thread_conf = "4.1.1";
         const unsigned long max_chunk_size = (argc == 3) ? MAX_CHUNK_SIZE : atol(argv[1]);
 
         if (max_chunk_size < MIN_LENGTH_TO_COMPRESS) {
@@ -183,8 +184,8 @@ namespace pbwtzip {
 
         if (LOG_STATISTICS_CSV) {
             string log_name = argv[argc - 1];
-            log_name += "_statistics_log.csv";
-            Log::open_csv_log(log_name);
+            log_name += "_stats_log.csv";
+            Log::csv::start_new_line(log_name, thread_conf, max_chunk_size);
         }
 
         auto clk = new wClock();
@@ -228,7 +229,7 @@ namespace pbwtzip {
 #pragma omp section
                 write_file(bs, outfile);
             }
-            if (LOG_STATISTICS) stats_update(iter);
+            if (LOG_STATISTICS || LOG_STATISTICS_CSV) stats_update(iter);
 
             Log::pipeline::ended(iter, bs);
 
@@ -241,7 +242,7 @@ namespace pbwtzip {
 
         Log::pipeline::print_total_exec_time(clk->report());
 
-        if (LOG_STATISTICS_CSV) Log::close_csv_log();
+        if (LOG_STATISTICS_CSV) Log::csv::print_statistics_line();
         delete clk;
     }
 

@@ -1,28 +1,26 @@
-
-#include <log.hh>
-
 #include "log.hh"
+
+#include <iostream>
+#include <log.hh>
+#include <sstream>
+
 
 using namespace std;
 
-namespace Log {
-    std::ofstream csvfile;
+namespace Log{
+    namespace csv {
+        std::stringstream csv_line;
+    }
 }
 
-void Log::open_csv_log(std::string filename) {
-    csvfile.open(filename);
-//    csvfile
-//            << "Filename, "
-//            << "Times_lasted_longer_read, Times_lasted_longer_stage1, Times_lasted_longer_stage2, Times_lasted_longer_stage3, Times_lasted_longer_write, "
-//            << "Avg_exec_time_read, Avg_exec_time_stage1, Avg_exec_time_stage2, Avg_exec_time_stage3, Avg_exec_time_write,   "
-//            << "Total_compression_time\n";
-    csvfile << filename << ", ";
+void Log::csv::start_new_line(string filename, string thread_config, const unsigned long chunk_size) {
+    csv::csv_line.clear();
+    csv::csv_line << filename << ", " << thread_config << ", " << chunk_size << ", ";
 }
 
-void Log::close_csv_log() {
-    csvfile.close();
+void Log::csv::print_statistics_line() {
+    std::cout << csv::csv_line.str() << endl;
 }
-
 
 void Log::pipeline::started(int iter, int bs) {
     if (LOG_PBWTZIP && LOG_STAGE) printf("[PBWTZIP][pipeline] ---- Started iteration %d, BS %d\n", iter, bs);
@@ -55,15 +53,15 @@ void Log::pipeline::stats_print_summary(int iter, int lasted_longer_count[], dou
 
     if (LOG_STATISTICS_CSV) {
         for (int i = 0; i < 5; i++)
-            csvfile << lasted_longer_count[i] << ", ";
+            csv::csv_line << lasted_longer_count[i] << ", ";
         for (int i = 0; i < 5; i++)
-            csvfile << time_averages[i] << ", ";
+            csv::csv_line << time_averages[i] << ", ";
     }
 }
 
 void Log::pipeline::print_total_exec_time(double time) {
     if (LOG_PBWTZIP) printf("[PBWTZIP] Execution time: %f\n\n", time);
-    if (LOG_STATISTICS_CSV) csvfile << time << "\n";
+    if (LOG_STATISTICS_CSV) csv::csv_line << time;
 }
 
 void Log::stage::started(string stage_name, int bs) {
