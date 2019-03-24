@@ -97,7 +97,8 @@ set(TEST_SOURCES
         ${COMMON_SRC}
         ${CMAKE_CURRENT_SOURCE_DIR}/src/pbwtzip.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/src/bwtunzip.cc
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/main.cpp)
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/main.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/test_pbwtzip.cpp)
 
 add_executable(tests ${TEST_SOURCES})
 
