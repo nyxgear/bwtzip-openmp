@@ -26,9 +26,6 @@ if (OPENMP_FOUND)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif ()
 
-# Boost dependency
-find_package(Boost 1.65.0 REQUIRED COMPONENTS filesystem)
-
 # Enable unit testing support
 include(CTest)
 enable_testing()
@@ -36,8 +33,8 @@ enable_testing()
 include_directories(BEFORE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/external
-        ${Boost_INCLUDE_DIRS})
+        ${CMAKE_CURRENT_SOURCE_DIR}/external)
+
 # --------------------------------------------------------------------------- #
 #                     bwtzip - Unmodified serial version
 # --------------------------------------------------------------------------- #
@@ -87,9 +84,6 @@ set(PBWTZIP2_SRC
 add_executable(pbwtzip2
         ${PBWTZIP2_SRC}
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main_pbwtzip2.cc)
-#target_link_libraries(pbwtzip
-#        PUBLIC
-#        Boost::filesystem)
 
 # --------------------------------------------------------------------------- #
 #                               Tests
@@ -109,8 +103,7 @@ add_executable(tests ${TEST_SOURCES})
 
 target_link_libraries(tests
         PUBLIC
-        Catch
-        ${Boost_LIBRARIES})
+        Catch)
 
 
 add_test(NAME tests COMMAND tests)
