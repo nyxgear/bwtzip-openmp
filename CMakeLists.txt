@@ -49,7 +49,8 @@ set(COMMON_SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/src/bwtzip_arith.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/src/bwtzip_file.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/src/clock.cc
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/wclock.cc)
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/wclock.cc
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/log.cc)
 
 # bwtzip executable
 set(BWTZIP_SRC
@@ -74,8 +75,6 @@ add_executable(bwtunzip
 # pbwtzip executable
 set(PBWTZIP_SRC
         ${COMMON_SRC}
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/wclock.cc
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/log.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/src/pbwtzip.cc)
 add_executable(pbwtzip
         ${PBWTZIP_SRC}
@@ -94,8 +93,6 @@ target_include_directories(Catch INTERFACE ${CATCH_INCLUDE_DIR})
 
 set(TEST_SOURCES
         ${COMMON_SRC}
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/wclock.cc
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/log.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/src/pbwtzip.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/src/bwtunzip.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/test/main.cpp)

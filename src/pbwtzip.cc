@@ -31,7 +31,7 @@ namespace pbwtzip {
  * @param max_chunk_size    maximum chunk size
  */
 void pbwtzip::read_file(int bs, bwtzip::InputFile &infile, const unsigned long max_chunk_size) {
-    Log::stage::started("read_file", bs);
+    Log::pbwtzip::stage::started("read_file", bs);
     auto clk = new wClock();
 
     for (unsigned int i = 0; i < buffer_size; i++) {
@@ -58,10 +58,10 @@ void pbwtzip::read_file(int bs, bwtzip::InputFile &infile, const unsigned long m
         }
 
         bufferR_1[!bs][i] = c;
-        Log::stage::chunk_written("read_file", "bufferR_1", !bs, i, c);
+        Log::pbwtzip::stage::chunk_written("read_file", "bufferR_1", !bs, i, c);
     }
     stats_stages_time[0] = clk->report();
-    Log::stage::ended("read_file", stats_stages_time[0]);
+    Log::pbwtzip::stage::ended("read_file", stats_stages_time[0]);
     delete clk;
 }
 
@@ -70,7 +70,7 @@ void pbwtzip::read_file(int bs, bwtzip::InputFile &infile, const unsigned long m
      * @param bs    buffer side
      */
 void pbwtzip::stage_2(int bs) {
-    Log::stage::started("stage_2", bs);
+    Log::pbwtzip::stage::started("stage_2", bs);
     auto clk = new wClock();
 
 #pragma omp parallel for num_threads(num_thread_stage_2) firstprivate(bs)
@@ -78,7 +78,7 @@ void pbwtzip::stage_2(int bs) {
         cnk_t *c;
 
         c = buffer1_2[bs][i];
-        Log::stage::chunk_read("stage_2", "buffer1_2", bs, i, c);
+        Log::pbwtzip::stage::chunk_read("stage_2", "buffer1_2", bs, i, c);
 
         if (c != nullptr && c->id == 1) {
             bwtzip::mtf2(c->v);
@@ -86,11 +86,11 @@ void pbwtzip::stage_2(int bs) {
         }
 
         buffer2_3[!bs][i] = c;
-        Log::stage::chunk_written("stage_2", "buffer2_3", !bs, i, c);
+        Log::pbwtzip::stage::chunk_written("stage_2", "buffer2_3", !bs, i, c);
     }
 
     stats_stages_time[2] = clk->report();
-    Log::stage::ended("stage_2", stats_stages_time[2]);
+    Log::pbwtzip::stage::ended("stage_2", stats_stages_time[2]);
     delete clk;
 }
 
@@ -100,7 +100,7 @@ void pbwtzip::stage_2(int bs) {
  * @param bs    buffer side
  */
 void pbwtzip::stage_3(int bs) {
-    Log::stage::started("stage_3", bs);
+    Log::pbwtzip::stage::started("stage_3", bs);
     auto clk = new wClock();
 
 #pragma omp parallel for num_threads(num_thread_stage_3) firstprivate(bs)
@@ -108,18 +108,18 @@ void pbwtzip::stage_3(int bs) {
         cnk_t *c;
 
         c = buffer2_3[bs][i];
-        Log::stage::chunk_read("stage_3", "buffer2_3", bs, i, c);
+        Log::pbwtzip::stage::chunk_read("stage_3", "buffer2_3", bs, i, c);
 
         if (c != nullptr && c->id == 1) {
             bwtzip::arith(c->v);
         }
 
         buffer3_W[!bs][i] = c;
-        Log::stage::chunk_written("stage_3", "buffer3_W", !bs, i, c);
+        Log::pbwtzip::stage::chunk_written("stage_3", "buffer3_W", !bs, i, c);
     }
 
     stats_stages_time[3] = clk->report();
-    Log::stage::ended("stage_3", stats_stages_time[3]);
+    Log::pbwtzip::stage::ended("stage_3", stats_stages_time[3]);
     delete clk;
 }
 
@@ -129,14 +129,14 @@ void pbwtzip::stage_3(int bs) {
  * @param outfile
  */
 void pbwtzip::write_file(int bs, bwtzip::OutputFile &outfile) {
-    Log::stage::started("write_file", bs);
+    Log::pbwtzip::stage::started("write_file", bs);
     auto clk = new wClock();
 
     for (unsigned int i = 0; i < buffer_size; i++) {
         cnk_t *c;
 
         c = buffer3_W[bs][i];
-        Log::stage::chunk_read("write_file", "buffer3_W", bs, i, c);
+        Log::pbwtzip::stage::chunk_read("write_file", "buffer3_W", bs, i, c);
 
         if (c != nullptr) {
             vector<unsigned char> id;
@@ -155,7 +155,7 @@ void pbwtzip::write_file(int bs, bwtzip::OutputFile &outfile) {
     }
 
     stats_stages_time[4] = clk->report();
-    Log::stage::ended("write_file", stats_stages_time[4]);
+    Log::pbwtzip::stage::ended("write_file", stats_stages_time[4]);
     delete clk;
 }
 
