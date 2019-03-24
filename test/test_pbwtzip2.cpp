@@ -1,18 +1,18 @@
 #include "catch.hpp"
 
 #include "stdio.h"
-#include "pbwtzip.hh"
+#include "pbwtzip2.hh"
 #include "bwtzip_suffixtree.hh"
 #include "bwtunzip.hh"
 
 using namespace bwtzip;
 
-TEST_CASE("pbwtzip: Compressed file matches original file") {
-    std::cout << "[TEST][pbwtzip]-------- Compressed file matches original file ---------" << endl;
+TEST_CASE("pbwtzip2: Compressed file matches original file") {
+    std::cout << "[TEST][pbwtzip2]-------- Compressed file matches original file ---------" << endl;
 
     const char *original_file_path = "../test/data_sample.txt";
-    const char *compressed_file_path = "./pbwtzip_data_sample_compressed.bwtzip";
-    const char *decompressed_file_path = "./pbwtzip_data_sample_decompressed.txt";
+    const char *compressed_file_path = "./pbwtzip2_data_sample_compressed.bwtzip";
+    const char *decompressed_file_path = "./pbwtzip2_data_sample_decompressed.txt";
 
     // delete files if they exist
     remove(compressed_file_path);
@@ -25,14 +25,14 @@ TEST_CASE("pbwtzip: Compressed file matches original file") {
     char *argv_zip[5] = {NULL, NULL, NULL, NULL, NULL};
     int argc_zip = sizeof(argv_zip) / sizeof(char *) - 1;
 
-    argv_zip[0] = (char *) "pbwtzip";
+    argv_zip[0] = (char *) "pbwtzip2";
     argv_zip[1] = (char *) "409600";
     // argv[1] = (char *) "5242880"; // MAX_CHUNK_SIZE
     argv_zip[2] = (char *) original_file_path;
     argv_zip[3] = (char *) compressed_file_path;
 
-    std::cout << "[TEST][pbwtzip] Compressing " << original_file_path << " to " << compressed_file_path << std::endl;
-    pbwtzip::pbwtzipMain(argc_zip, argv_zip, "bwtzip", "Ukkonen Suffix Tree", bwtStree);
+    std::cout << "[TEST][pbwtzip2] Compressing " << original_file_path << " to " << compressed_file_path << std::endl;
+    pbwtzip2::pbwtzip2Main(argc_zip, argv_zip, "bwtzip", "Ukkonen Suffix Tree", bwtStree);
 
 
     /**
@@ -45,7 +45,7 @@ TEST_CASE("pbwtzip: Compressed file matches original file") {
     argv_unzip[1] = (char *) compressed_file_path;
     argv_unzip[2] = (char *) decompressed_file_path;
 
-    std::cout << "[TEST][pbwtzip] Decompressing " << compressed_file_path << " to " << decompressed_file_path << std::endl;
+    std::cout << "[TEST][pbwtzip2] Decompressing " << compressed_file_path << " to " << decompressed_file_path << std::endl;
     bwtunzipMain(argc_unzip, argv_unzip);
 
 
@@ -65,6 +65,6 @@ TEST_CASE("pbwtzip: Compressed file matches original file") {
 
         original_decompressed_match = org_v == dec_v;
     }
-    std::cout << "[TEST][pbwtzip] Testing match of original and decompressed file" << std::endl;
+    std::cout << "[TEST][pbwtzip2] Testing match of original and decompressed file" << std::endl;
     REQUIRE(original_decompressed_match);
 }

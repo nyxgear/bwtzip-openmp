@@ -96,9 +96,11 @@ target_include_directories(Catch INTERFACE ${CATCH_INCLUDE_DIR})
 set(TEST_SOURCES
         ${COMMON_SRC}
         ${CMAKE_CURRENT_SOURCE_DIR}/src/pbwtzip.cc
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pbwtzip2.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/src/bwtunzip.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/test/main.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/test_pbwtzip.cpp)
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/test_pbwtzip.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/test_pbwtzip2.cpp)
 
 add_executable(tests ${TEST_SOURCES})
 
