@@ -28,6 +28,18 @@
 namespace Log {
     using namespace std;
 
+    namespace bwtzip {
+        void stats_print_summary(int iter, int lasted_longer_count[], double time_averages[]);
+        void print_total_exec_time(double time);
+        namespace csv {
+            extern std::stringstream csv_line;
+
+            void start_new_line(string filename, unsigned long chunk_size);
+
+            void print_statistics_line();
+        }
+    }
+
     namespace pbwtzip {
         void started(int iter, int bs);
 
@@ -50,18 +62,6 @@ namespace Log {
             extern std::stringstream csv_line;
 
             void start_new_line(string filename, char *thread_config, unsigned long chunk_size);
-
-            void print_statistics_line();
-        }
-    }
-
-    namespace bwtzip {
-        void stats_print_summary(int iter, int lasted_longer_count[], double time_averages[]);
-        void print_total_exec_time(double time);
-        namespace csv {
-            extern std::stringstream csv_line;
-
-            void start_new_line(string filename, unsigned long chunk_size);
 
             void print_statistics_line();
         }

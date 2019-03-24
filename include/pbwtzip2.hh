@@ -34,15 +34,13 @@ namespace pbwtzip2 {
     // num of assigned threads to stages
     extern unsigned int num_thread_stage_1;
     extern unsigned int num_thread_stage_2;
-    extern unsigned int num_thread_stage_3;
 
     extern unsigned int buffer_size;
 
     // buffers
     extern cnk_t ***bufferR_1;
     extern cnk_t ***buffer1_2;
-    extern cnk_t ***buffer2_3;
-    extern cnk_t ***buffer3_W;
+    extern cnk_t ***buffer2_W;
 
     // turned true from read_file function once file read completed
     // (used to signal to write function that read is completed)
@@ -100,16 +98,10 @@ namespace pbwtzip2 {
 
 
     /**
-     * Stage 2: MTF + zleWheeler functions applied to chunk
+     * Stage 2: MTF + zleWheeler + Arithmetic encoder function applied to chunk
      * @param bs    buffer side
      */
     void stage_2(int bs);
-
-    /**
-     * Stage 3: Arithmetic encoder function applied to chunk
-     * @param bs    buffer side
-     */
-    void stage_3(int bs);
 
     /**
      * Write output file with compressed chunks
@@ -135,7 +127,7 @@ namespace pbwtzip2 {
      * @param bwtfxn
      */
     template<typename T>
-    void pbwtzipMain(int argc, char *argv[], std::string executableName, std::string algorithmName, T bwtfxn) {
+    void pbwtzip2Main(int argc, char *argv[], std::string executableName, std::string algorithmName, T bwtfxn) {
         using namespace std;
         /**
          * bwtCompress original function
@@ -158,7 +150,7 @@ namespace pbwtzip2 {
             cout << "USAGE: " << executableName << " infile outfile" << endl;
             cout << "USAGE: " << executableName << " chunksize infile outfile" << endl;
             cout << "USAGE: " << executableName << " threads_conf chunksize infile outfile" << endl;
-            cout << "\n\tthreads_conf eg: 5.1.1" << endl;
+            cout << "\n\tthreads_conf eg: 5.2" << endl;
             exit(EXIT_SUCCESS);
         }
 
@@ -168,17 +160,15 @@ namespace pbwtzip2 {
         char threads_conf[20];
         if (argc == 5) {
             strcpy(threads_conf, argv[argc - 4]);
-            sscanf(threads_conf, "%u.%u.%u", &num_thread_stage_1, &num_thread_stage_2, &num_thread_stage_3);
+            sscanf(threads_conf, "%u.%u", &num_thread_stage_1, &num_thread_stage_2);
         } else {
             num_thread_stage_1 = NUM_THREAD_STAGE_1;
             num_thread_stage_2 = NUM_THREAD_STAGE_2;
-            num_thread_stage_3 = NUM_THREAD_STAGE_3;
 
-            sprintf(threads_conf, "%u.%u.%u", num_thread_stage_1, num_thread_stage_2, num_thread_stage_3);
+            sprintf(threads_conf, "%u.%u", num_thread_stage_1, num_thread_stage_2);
         }
         // update buffer size to max num_threads
         buffer_size = max(num_thread_stage_1, num_thread_stage_2);
-        buffer_size = max(buffer_size, num_thread_stage_3);
 
 
         /**
@@ -201,14 +191,12 @@ namespace pbwtzip2 {
         for (unsigned int j = 0; j < 2; ++j) {
             bufferR_1[j] = new cnk_t *[buffer_size];
             buffer1_2[j] = new cnk_t *[buffer_size];
-            buffer2_3[j] = new cnk_t *[buffer_size];
-            buffer3_W[j] = new cnk_t *[buffer_size];
+            buffer2_W[j] = new cnk_t *[buffer_size];
 
             for (unsigned int i = 0; i < buffer_size; i++) {
                 bufferR_1[j][i] = nullptr;
                 buffer1_2[j][i] = nullptr;
-                buffer2_3[j][i] = nullptr;
-                buffer3_W[j][i] = nullptr;
+                buffer2_W[j][i] = nullptr;
             }
         }
 
@@ -250,9 +238,6 @@ namespace pbwtzip2 {
                 stage_2(bs);
 
 #pragma omp section
-                stage_3(bs);
-
-#pragma omp section
                 write_file(bs, outfile);
             }
             if (LOG_STATISTICS || LOG_STATISTICS_CSV) stats_update(iter);
@@ -276,13 +261,11 @@ namespace pbwtzip2 {
         for (unsigned int j = 0; j < 2; ++j) {
             delete[] bufferR_1[j];
             delete[] buffer1_2[j];
-            delete[] buffer2_3[j];
-            delete[] buffer3_W[j];
+            delete[] buffer2_W[j];
         }
         delete[] bufferR_1;
         delete[] buffer1_2;
-        delete[] buffer2_3;
-        delete[] buffer3_W;
+        delete[] buffer2_W;
     }
 }
 

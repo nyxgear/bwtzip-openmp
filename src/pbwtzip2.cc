@@ -4,7 +4,6 @@ namespace pbwtzip2 {
     // num of assigned threads to stages, set them to default
     unsigned int num_thread_stage_1;
     unsigned int num_thread_stage_2;
-    unsigned int num_thread_stage_3;
 
     // will be set to the max between num_thread_stage_1, num_thread_stage_2, num_thread_stage_3
     unsigned int buffer_size;
@@ -12,8 +11,7 @@ namespace pbwtzip2 {
     // initialize buffers with two sides
     cnk_t ***bufferR_1 = new cnk_t **[2];
     cnk_t ***buffer1_2 = new cnk_t **[2];
-    cnk_t ***buffer2_3 = new cnk_t **[2];
-    cnk_t ***buffer3_W = new cnk_t **[2];
+    cnk_t ***buffer2_W = new cnk_t **[2];
 
 
     bool read_completed = false;
@@ -30,7 +28,7 @@ namespace pbwtzip2 {
  * @param infile            input file
  * @param max_chunk_size    maximum chunk size
  */
-void pbwtzip::read_file(int bs, bwtzip::InputFile &infile, const unsigned long max_chunk_size) {
+void pbwtzip2::read_file(int bs, bwtzip::InputFile &infile, const unsigned long max_chunk_size) {
     Log::pbwtzip::stage::started("read_file", bs);
     auto clk = new wClock();
 
@@ -42,7 +40,7 @@ void pbwtzip::read_file(int bs, bwtzip::InputFile &infile, const unsigned long m
             // submit into the pipeline a "null chunk"
             if (LOG_STAGE) printf("[PBWTZIP][read_file] Read COMPLETED.");
             c = nullptr;
-            pbwtzip::read_completed = true;
+            pbwtzip2::read_completed = true;
         } else {
             // create chunk
             c = new cnk_t();
@@ -66,10 +64,10 @@ void pbwtzip::read_file(int bs, bwtzip::InputFile &infile, const unsigned long m
 }
 
 /**
-     * Stage 2: MTF + zleWheeler functions applied to chunk
-     * @param bs    buffer side
-     */
-void pbwtzip::stage_2(int bs) {
+ * Stage 2: MTF + zleWheeler + Arithmetic encoder function applied to chunk
+ * @param bs    buffer side
+ */
+void pbwtzip2::stage_2(int bs) {
     Log::pbwtzip::stage::started("stage_2", bs);
     auto clk = new wClock();
 
@@ -83,43 +81,15 @@ void pbwtzip::stage_2(int bs) {
         if (c != nullptr && c->id == 1) {
             bwtzip::mtf2(c->v);
             bwtzip::zleWheeler(c->v);
+            bwtzip::arith(c->v);
         }
 
-        buffer2_3[!bs][i] = c;
-        Log::pbwtzip::stage::chunk_written("stage_2", "buffer2_3", !bs, i, c);
+        buffer2_W[!bs][i] = c;
+        Log::pbwtzip::stage::chunk_written("stage_2", "buffer2_W", !bs, i, c);
     }
 
     stats_stages_time[2] = clk->report();
     Log::pbwtzip::stage::ended("stage_2", stats_stages_time[2]);
-    delete clk;
-}
-
-
-/**
- * Stage 3: Arithmetic encoder function applied to chunk
- * @param bs    buffer side
- */
-void pbwtzip::stage_3(int bs) {
-    Log::pbwtzip::stage::started("stage_3", bs);
-    auto clk = new wClock();
-
-#pragma omp parallel for num_threads(num_thread_stage_3) firstprivate(bs)
-    for (unsigned int i = 0; i < buffer_size; i++) {
-        cnk_t *c;
-
-        c = buffer2_3[bs][i];
-        Log::pbwtzip::stage::chunk_read("stage_3", "buffer2_3", bs, i, c);
-
-        if (c != nullptr && c->id == 1) {
-            bwtzip::arith(c->v);
-        }
-
-        buffer3_W[!bs][i] = c;
-        Log::pbwtzip::stage::chunk_written("stage_3", "buffer3_W", !bs, i, c);
-    }
-
-    stats_stages_time[3] = clk->report();
-    Log::pbwtzip::stage::ended("stage_3", stats_stages_time[3]);
     delete clk;
 }
 
@@ -128,15 +98,15 @@ void pbwtzip::stage_3(int bs) {
  * @param bs        buffer side
  * @param outfile
  */
-void pbwtzip::write_file(int bs, bwtzip::OutputFile &outfile) {
+void pbwtzip2::write_file(int bs, bwtzip::OutputFile &outfile) {
     Log::pbwtzip::stage::started("write_file", bs);
     auto clk = new wClock();
 
     for (unsigned int i = 0; i < buffer_size; i++) {
         cnk_t *c;
 
-        c = buffer3_W[bs][i];
-        Log::pbwtzip::stage::chunk_read("write_file", "buffer3_W", bs, i, c);
+        c = buffer2_W[bs][i];
+        Log::pbwtzip::stage::chunk_read("write_file", "buffer2_W", bs, i, c);
 
         if (c != nullptr) {
             vector<unsigned char> id;
@@ -149,13 +119,13 @@ void pbwtzip::write_file(int bs, bwtzip::OutputFile &outfile) {
             delete c;
         } else if (read_completed) {
             // received a "null chunk" so, if reading is completed, file processing is terminated
-            pbwtzip::ongoing_file_processing = false;
+            pbwtzip2::ongoing_file_processing = false;
             if (LOG_STAGE) printf("[PBWTZIP][write_file] Write COMPLETED.");
         }
     }
 
-    stats_stages_time[4] = clk->report();
-    Log::pbwtzip::stage::ended("write_file", stats_stages_time[4]);
+    stats_stages_time[3] = clk->report();
+    Log::pbwtzip::stage::ended("write_file", stats_stages_time[3]);
     delete clk;
 }
 
@@ -164,11 +134,11 @@ void pbwtzip::write_file(int bs, bwtzip::OutputFile &outfile) {
  * Update pipeline statics after iteration
  * @param iter
  */
-void pbwtzip::stats_update(int iter) {
+void pbwtzip2::stats_update(int iter) {
     double max_time = 0;
     int max_stage = 0;
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 4; i++) {
         if (stats_stages_time[i] > max_time) {
             max_time = stats_stages_time[i];
             max_stage = i;
@@ -178,13 +148,13 @@ void pbwtzip::stats_update(int iter) {
 
     if (iter == 0) {
         // first iteration, copy the times
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 4; i++)
             stats_time_averages[i] = stats_stages_time[i];
     } else {
         // iter > 0 hence 2nd or next iteration.
         // incremental mean  U_n = [X_n + (n - 1)*U_n-1]/n
         // iter is actually n - 1 since zero-initialized
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 4; i++)
             stats_time_averages[i] = (stats_stages_time[i] + (iter * stats_time_averages[i])) / (iter + 1);
     }
 }

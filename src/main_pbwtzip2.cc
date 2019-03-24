@@ -4,5 +4,5 @@
 using namespace pbwtzip2;
 
 int main(int argc, char *argv[]) {
-    pbwtzipMain(argc, argv, "pbwtzip", "Ukkonen Suffix Tree", bwtStree);
+    pbwtzip2Main(argc, argv, "pbwtzip", "Ukkonen Suffix Tree", bwtStree);
 }
