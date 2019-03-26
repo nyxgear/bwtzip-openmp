@@ -50,12 +50,12 @@ void Log::bwtzip::stats_print_summary(int iter, int *lasted_longer_count, double
     }
 
     if (LOG_STATISTICS_CSV) {
-        csv::csv_line << iter + 1 << ", ";
+        csv::csv_line << iter + 1 << ",";
 
         for (int i = 0; i < 4; i++)
-            csv::csv_line << lasted_longer_count[i] << ", ";
+            csv::csv_line << lasted_longer_count[i] << ",";
         for (int i = 0; i < 4; i++)
-            csv::csv_line << time_averages[i] << ", ";
+            csv::csv_line << time_averages[i] << ",";
     }
 }
 
@@ -66,7 +66,7 @@ void Log::bwtzip::print_total_exec_time(double time) {
 }
 
 void Log::bwtzip::csv::start_new_line(string filename, unsigned long chunk_size) {
-    csv::csv_line << filename << ", " << chunk_size << ", ";
+    csv::csv_line << filename << "," << chunk_size << ",";
 }
 
 
@@ -109,12 +109,12 @@ void Log::pbwtzip::stats_print_summary(int iter, int lasted_longer_count[], doub
     }
 
     if (LOG_STATISTICS_CSV) {
-        csv::csv_line << iter + 1 << ", ";
+        csv::csv_line << iter + 1 << ",";
 
         for (int i = 0; i < 5; i++)
-            csv::csv_line << lasted_longer_count[i] << ", ";
+            csv::csv_line << lasted_longer_count[i] << ",";
         for (int i = 0; i < 5; i++)
-            csv::csv_line << time_averages[i] << ", ";
+            csv::csv_line << time_averages[i] << ",";
     }
 }
 
@@ -155,7 +155,7 @@ void Log::pbwtzip::stage::chunk_written(string stage_name, string buffer_name, i
 }
 
 void Log::pbwtzip::csv::start_new_line(string filename, char *thread_config, unsigned long chunk_size) {
-    csv::csv_line << filename << ", " << thread_config << ", " << chunk_size << ", ";
+    csv::csv_line << filename << "," << thread_config << "," << chunk_size << ",";
 }
 
 void Log::pbwtzip::csv::print_statistics_line() {
@@ -196,12 +196,12 @@ void Log::pbwtzip2::stats_print_summary(int iter, int lasted_longer_count[], dou
     }
 
     if (LOG_STATISTICS_CSV) {
-        csv::csv_line << iter + 1 << ", ";
+        csv::csv_line << iter + 1 << ",";
 
         for (int i = 0; i < 4; i++)
-            csv::csv_line << lasted_longer_count[i] << ", ";
+            csv::csv_line << lasted_longer_count[i] << ",";
         for (int i = 0; i < 4; i++)
-            csv::csv_line << time_averages[i] << ", ";
+            csv::csv_line << time_averages[i] << ",";
     }
 }
 
@@ -242,7 +242,7 @@ void Log::pbwtzip2::stage::chunk_written(string stage_name, string buffer_name, 
 }
 
 void Log::pbwtzip2::csv::start_new_line(string filename, char *thread_config, unsigned long chunk_size) {
-    csv::csv_line << filename << ", " << thread_config << ", " << chunk_size << ", ";
+    csv::csv_line << filename << "," << thread_config << "," << chunk_size << ",";
 }
 
 void Log::pbwtzip2::csv::print_statistics_line() {
