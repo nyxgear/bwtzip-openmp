@@ -16,8 +16,8 @@ Checkout the performed [speedup anlaysis](doc/speedup_analysis) made on the para
 
 | pbwtzip | pbwtzip2 |  
 |:--------|:---------|
-| ![pbwtzip speedpup linechart](doc/assets/pbwtzip_speedup_linechart.png) | ![pbwtzip2 speedpup linechart](doc/assets/pbwtzip2_speedup_linechart.png) |
-| ![pbwtzip speedpup heatmap](doc/assets/pbwtzip_speedup_heatmap.png) | ![pbwtzip2 speedpup heatmap](doc/assets/pbwtzip2_speedup_heatmap.png) |
+| ![pbwtzip speedpup linechart](doc/speedup_analysis/images/pbwtzip_speedup_linechart.png) | ![pbwtzip2 speedpup linechart](doc/speedup_analysis/images/pbwtzip2_speedup_linechart.png) |
+| ![pbwtzip speedpup heatmap](doc/speedup_analysis/images/pbwtzip_speedup_heatmap.png) | ![pbwtzip2 speedpup heatmap](doc/speedup_analysis/images/pbwtzip2_speedup_heatmap.png) |
 
 
 ## Documentation
