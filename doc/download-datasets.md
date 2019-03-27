@@ -51,7 +51,7 @@ $ ./script/download_large_source_code.sh
 ```
 ---
 
-## Remarks on skip downloads and skip unzipping
+## Remarks on skip download and skip unzipping
 
 The download scripts are designed to skip the download of any resource (file and directory) that is already present on disk.
 

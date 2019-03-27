@@ -1,14 +1,14 @@
 # Bwtzip OpenMP
 *A parallel version of the bwtzip project implemented by means of the OpenMP APIs*
 
-In this project the [bwtzip] lossless data compression library from Stephan T. Lavavej was extended by means of [OpenMP] APIs in order to build a faster parallel version of the library.
+In this project, the [bwtzip] lossless data compression library from Stephan T. Lavavej was extended by means of [OpenMP] APIs in order to build a faster parallel version of the library.
 Moreover, a performances analysis was conducted to show to obtained speedup.
 
 **NOTE:** This is neither an official version of the bwtzip project, nor an implementation intended to be distributed.
 
 ## Speedup analysis
 
-Checkout the performed [speedup anlaysis](doc/speedup_analysis) made on the parallel versions of bwtzip
+Check out the performed [speedup analysis](doc/speedup_analysis) made on the parallel versions of bwtzip
 
 - [pbwtzip speedup analysis](doc/speedup_analysis/pbwtzip_speedup_analysis.ipynb)
 - [pbwtzip2 speedup analysis](doc/speedup_analysis/pbwtzip2_speedup_analysis.ipynb)
@@ -16,13 +16,13 @@ Checkout the performed [speedup anlaysis](doc/speedup_analysis) made on the para
 
 | pbwtzip | pbwtzip2 |  
 |:--------|:---------|
-| ![pbwtzip speedpup linechart](doc/speedup_analysis/images/pbwtzip_speedup_linechart.png) | ![pbwtzip2 speedpup linechart](doc/speedup_analysis/images/pbwtzip2_speedup_linechart.png) |
-| ![pbwtzip speedpup heatmap](doc/speedup_analysis/images/pbwtzip_speedup_heatmap.png) | ![pbwtzip2 speedpup heatmap](doc/speedup_analysis/images/pbwtzip2_speedup_heatmap.png) |
+| ![pbwtzip speedup line chart](doc/speedup_analysis/images/pbwtzip_speedup_linechart.png) | ![pbwtzip2 speedup linechart](doc/speedup_analysis/images/pbwtzip2_speedup_linechart.png) |
+| ![pbwtzip speedup heatmap](doc/speedup_analysis/images/pbwtzip_speedup_heatmap.png) | ![pbwtzip2 speedup heatmap](doc/speedup_analysis/images/pbwtzip2_speedup_heatmap.png) |
 
 
 ## Documentation
 
-Checkout the [documentation](doc) to compile the project and run the speed up analysis!
+Check out the [documentation](doc) to compile the project and run the speed up analysis!
 
 
 ## Project presentation
@@ -35,7 +35,7 @@ By what stated in the Bwtzip official page (<https://nuwen.net/bwtzip.html>)
 
 > *bwtzip is an ongoing project, distributed under the GNU General Public License, to implement a Burrows-Wheeler compressor in standard, portable C++.*
 
-this project inherit the [GNU GPL] license.
+this project inherits the [GNU GPL] license.
 
 ## Source code
 
