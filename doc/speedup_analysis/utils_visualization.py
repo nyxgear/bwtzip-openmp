@@ -31,10 +31,12 @@ def plot_line_chart(title, parameters_matrix, chunk_sizes, thread_confs):
         #    dd = (t[0], t[1] + 0.01)
         #    ax.annotate('%s, %s' % fmt, xy=dd, textcoords='data')
 
-    plt.title(title, fontsize=16, pad=15)
+    plt.title(title, fontsize=17, pad=18)
     plt.grid(True)
     plt.ylim(min_p - 0.2, max_p + 0.2)
-    plt.legend(loc='upper left')
+    plt.legend(loc='upper left', title='Chunk size', fontsize=12)
+    plt.xlabel('Threads configuration', fontsize=15, labelpad=12)
+    plt.ylabel('Speedup', fontsize=15, labelpad=12)
     plt.show()
 
 
@@ -62,8 +64,10 @@ def plot_heatmap(title, data, chunk_sizes, thread_confs, cmap, text_color):
         for j in range(len(farmers)):
             text = ax.text(j, i, round(data[i, j], 2), fontsize=16, ha="center", va="center", color=text_color)
 
-    ax.set_title(title, fontsize=16, pad=15)
+    ax.set_title(title, fontsize=18, pad=15)
     fig.tight_layout()
+    plt.xlabel('Threads configuration', fontsize=15, labelpad=10)
+    plt.ylabel('Chunk size', fontsize=15, labelpad=10)
     plt.colorbar(im)
     plt.show()
 
@@ -83,7 +87,7 @@ def plot_3d_bar(title, data, chunk_sizes, thread_confs, color):
 
     ax.bar3d(x, y, z, dx, dy, dz, color=color, shade=True)
 
-    ax.set_title(title, pad=25, fontsize=15)
+    ax.set_title(title, pad=40, fontsize=17)
 
     _x_ticks = np.arange(dx / 2, len(chunk_sizes))
     _y_ticks = np.arange(dy / 2, len(thread_confs))
@@ -97,15 +101,13 @@ def plot_3d_bar(title, data, chunk_sizes, thread_confs, color):
     ax.set_yticklabels(thread_confs)
 
     ax.set_xlabel("Chunk size", labelpad=20, fontsize=14)
-    ax.set_ylabel("Thread conf", labelpad=20, fontsize=14)
+    ax.set_ylabel("Threads configuration", labelpad=20, fontsize=14)
     ax.set_zlabel(title, labelpad=20, fontsize=14, rotation='vertical')
 
     idx = 0
     for _y in _y_ticks:
         for _x in _x_ticks:
-            lbl = str(round(dz[idx], 3))
-            if title == 'Time':
-                lbl += ' s'
+            lbl = str(round(dz[idx], 2))
             ax.text(_x, _y, dz[idx] + 0.05, lbl, color='k', fontsize=12,
                     backgroundcolor=(1, 1, 1, 0.8),
                     va='top')
