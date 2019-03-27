@@ -2,6 +2,15 @@
 
 ## Disk space required
 
+The files required by the speedup analysis will be stored in the folder:
+
+```
+dataset                     [~ 133.6M]
+ └── speedup_analysis_files [~ 133.6M]
+```
+
+or, if you want to download a larger dataset
+
 ```
 dataset                  [~ 3.6 GB]
  ├── human_genome        [~ 3.2 GB]
@@ -17,7 +26,13 @@ Make the required scripts executable
 $ chmod +x ./script/*
 ```
 
-Download all datasets
+and download the files for speedup analysis by
+
+```bash
+$ ./script/download_files.sh
+```
+
+If instead you prefer to download all datasets
 
 ```bash
 $ ./script/download_all.sh
@@ -34,6 +49,7 @@ $ ./script/download_large_english_text.sh
 
 $ ./script/download_large_source_code.sh
 ```
+---
 
 ## Remarks on skip downloads and skip unzipping
 
