@@ -8,7 +8,7 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 scale_factor = 2
 figsize_line_chart = (6.4 * scale_factor, 4.0 * scale_factor)
 figsize_heat_map = (6.4 * scale_factor, 4.0 * scale_factor)
-figsize_3d_bar = (15 * scale_factor, 4.0 * scale_factor)
+figsize_3d_bar = (18 * scale_factor, 7.0 * scale_factor)
 
 
 def get_vis_cnk_sizes(chunk_sizes):
@@ -72,25 +72,25 @@ def plot_3d_bar(title, data, chunk_sizes, thread_confs, color):
     fig = plt.figure(figsize=figsize_3d_bar)
     ax = fig.add_subplot(121, projection='3d')
 
-    x = np.arange(len(chunk_sizes))
-    y = np.arange(len(thread_confs))
     _x = np.arange(len(chunk_sizes))
     _y = np.arange(len(thread_confs))
     _xx, _yy = np.meshgrid(_x, _y)
     x, y = _xx.ravel(), _yy.ravel()
-
     dz = data.flatten(order='C')
     z = np.zeros_like(dz)
     dx = 0.4
-    dy = 0.2
+    dy = 0.4
 
     ax.bar3d(x, y, z, dx, dy, dz, color=color, shade=True)
 
     ax.set_title(title, pad=25, fontsize=15)
 
+    _x_ticks = np.arange(dx / 2, len(chunk_sizes))
+    _y_ticks = np.arange(dy / 2, len(thread_confs))
+
     # set ticks
-    ax.w_xaxis.set_ticks(np.arange(dx / 2, len(chunk_sizes)))
-    ax.w_yaxis.set_ticks(np.arange(dy / 2, len(thread_confs)))
+    ax.w_xaxis.set_ticks(_x_ticks)
+    ax.w_yaxis.set_ticks(_y_ticks)
 
     # set tick labels
     ax.set_xticklabels(chunk_sizes)
@@ -100,18 +100,16 @@ def plot_3d_bar(title, data, chunk_sizes, thread_confs, color):
     ax.set_ylabel("Thread conf", labelpad=20, fontsize=14)
     ax.set_zlabel(title, labelpad=20, fontsize=14, rotation='vertical')
 
-    ax.set_zlim3d(0.0)
-
-    _x_ticks = ax.w_xaxis.get_ticklocs()
-    _y_ticks = ax.w_xaxis.get_ticklocs()
-    _xx, _yy = np.meshgrid(_x_ticks, _y_ticks)
-    x, y = _xx.ravel(), _yy.ravel()
-
-    for i, t in enumerate(dz):
-        lbl = str(round(t, 3))
-        if title == 'Time':
-            lbl += ' s'
-        ax.text(x[i] - (dx / 4), y[i] - (dy / 4), t, lbl, color='k', fontsize=12, backgroundcolor=(1, 1, 1, 0.8))
+    idx = 0
+    for _y in _y_ticks:
+        for _x in _x_ticks:
+            lbl = str(round(dz[idx], 3))
+            if title == 'Time':
+                lbl += ' s'
+            ax.text(_x, _y, dz[idx] + 0.05, lbl, color='k', fontsize=12,
+                    backgroundcolor=(1, 1, 1, 0.8),
+                    va='top')
+            idx += 1
 
     ax.view_init(azim=-60, elev=55)
 

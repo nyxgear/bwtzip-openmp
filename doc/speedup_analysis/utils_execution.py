@@ -12,11 +12,11 @@ application_root = Path(application_root)
 build_dir = 'cmake-build-release'
 
 # datasets
-datasets_folder_names = ['large_english_text']
+datasets_folder_names = ['speedup_analysis_files']
 
 # number of times to repeat the function computation
 # and taking always the minimum result
-repeat_computation_for_results_soundness = 1
+repeat_computation_for_results_soundness = 3
 
 # executable paths
 bwtzip_path = application_root / build_dir / 'bwtzip'
@@ -74,7 +74,7 @@ def get_sequential_compression_times(chunk_sizes, dataset_names=datasets_folder_
                                           encoding="UTF8")
                         # print(b['Total_compression_time'])
                         total_compression_time[cnk_idx] += b['Total_compression_time']
-        print("Repetition ", t, "performed")
+        print("Repetition ", t+1, "performed")
         print(total_compression_time)
         if t == 0:
             min_compression_time = total_compression_time
@@ -138,7 +138,7 @@ def get_parallel_compression_times(pbwtzipx_path,
                                               dtype=float, encoding="UTF8")
                             # print(b['Total_compression_time'])
                             total_compression_time[cnk_idx][thr_idx] += b['Total_compression_time']
-        print("Repetition ", t, "performed")
+        print("Repetition ", t+1, "performed")
         print(total_compression_time)
         if t == 0:
             min_compression_time = total_compression_time
@@ -158,7 +158,7 @@ def get_pbwtzip_parallel_compression_times(chunk_sizes, thread_confs, dataset_na
 
 
 def get_pbwtzip2_parallel_compression_times(chunk_sizes, thread_confs, dataset_names=datasets_folder_names):
-    return get_parallel_compression_times(pbwtzip_path2,
+    return get_parallel_compression_times(pbwtzip2_path,
                                           "pbwtzip2",
                                           chunk_sizes,
                                           thread_confs,
