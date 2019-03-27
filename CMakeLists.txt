@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.10.0)
 project(bwtzip-openmp)
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
+#set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # C++ Standard
 set(CMAKE_CXX_STANDARD 11)
